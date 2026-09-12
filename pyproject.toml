@@ -1,0 +1,26 @@
+[project]
+name = "01-ad-de"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Michele Lombardi",email = "michele.lombardi2@unibo.it"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "notebook (>=7.6.2,<8.0.0)",
+    "pandas (>=3.0.5,<4.0.0)",
+    "scikit-learn (>=1.9.0,<2.0.0)",
+    "matplotlib (>=3.11.1,<4.0.0)",
+    "jupyterlab-rise (>=0.43.1,<0.44.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "nbconvert[webpdf] (>=7.17.1,<8.0.0)"
+]
