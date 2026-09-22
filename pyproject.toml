@@ -12,7 +12,9 @@ dependencies = [
     "pandas (>=3.0.5,<4.0.0)",
     "scikit-learn (>=1.9.0,<2.0.0)",
     "matplotlib (>=3.11.1,<4.0.0)",
-    "jupyterlab-rise (>=0.43.1,<0.44.0)"
+    "jupyterlab-rise (>=0.43.1,<0.44.0)",
+    "keras (>=3.15.1,<4.0.0)",
+    "tensorflow (>=2.21.0,<3.0.0)"
 ]
 
 

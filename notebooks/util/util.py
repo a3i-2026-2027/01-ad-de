@@ -169,6 +169,91 @@ def plot_density_estimator_2D(estimator, xr, yr, figsize=figsize):
     # plt.yticks(np.arange(0, len(xr)), yr)
 
 
+def plot_dataframe(data, labels=None, vmin=-1.96, vmax=1.96,
+        figsize=figsize, s=4):
+    plt.figure(figsize=figsize)
+    plt.imshow(data.T.iloc[:, :], aspect='auto',
+            cmap='RdBu', vmin=vmin, vmax=vmax)
+    if labels is not None:
+        # nonzero = data.index[labels != 0]
+        ncol = len(data.columns)
+        lvl = - 0.05 * ncol
+        # plt.scatter(nonzero, lvl*np.ones(len(nonzero)),
+        #         s=s, color='tab:orange')
+        plt.scatter(labels.index, np.ones(len(labels)) * lvl,
+                s=s,
+                color=plt.get_cmap('tab10')(labels))
+    plt.tight_layout()
+
+
+def plot_signal(signal, labels=None,
+        figsize=figsize, s=4):
+    plt.figure(figsize=figsize)
+    plt.plot(signal.index, signal, label='signal')
+    if labels is not None:
+        nonzero = signal.index[labels != 0]
+        smin, smax = np.min(signal),  np.max(signal)
+        lvl = smin - 0.05 * (smax-smin)
+        plt.scatter(nonzero, np.ones(len(nonzero)) * lvl,
+                s=s, color='tab:orange')
+    plt.grid()
+    plt.tight_layout()
+
+
+def get_errors(signal, labels, thr, tolerance=1):
+    pred = signal[signal > thr].index
+    anomalies = labels[labels != 0].index
+
+    fp = set(pred)
+    fn = set(anomalies)
+    for lag in range(-tolerance, tolerance+1):
+        fp = fp - set(anomalies+lag)
+        fn = fn - set(pred+lag)
+    return fp, fn
+
+
+def opt_threshold(signal, labels, th_range, cmodel):
+    costs = [cmodel.cost(signal, labels, th) for th in th_range]
+    best_th = th_range[np.argmin(costs)]
+    best_cost = np.min(costs)
+    return best_th, best_cost
+
+
+def plot_training_history(history, 
+        figsize=figsize):
+    plt.figure(figsize=figsize)
+    plt.plot(history.history['loss'], label='loss')
+    if 'val_loss' in history.history.keys():
+        plt.plot(history.history['val_loss'], label='val. loss')
+        plt.legend()
+    plt.grid()
+    plt.tight_layout()
+
+
+def plot_bars(data, figsize=figsize, tick_gap=1):
+    plt.figure(figsize=figsize)
+    x = 0.5 + np.arange(len(data))
+    plt.bar(x, data, width=0.7)
+    if tick_gap > 0:
+        plt.xticks(x[::tick_gap], data.index[::tick_gap], rotation=45)
+    plt.grid()
+    plt.tight_layout()
+
+
+class HPCMetrics:
+    def __init__(self, c_alarm, c_missed, tolerance):
+        self.c_alarm = c_alarm
+        self.c_missed = c_missed
+        self.tolerance = tolerance
+
+    def cost(self, signal, labels, thr):
+        # Obtain errors
+        fp, fn = get_errors(signal, labels, thr, self.tolerance)
+
+        # Compute the cost
+        return self.c_alarm * len(fp) + self.c_missed * len(fn)
+
+
 def get_pred(signal, thr):
     return pd.Series(signal.index[signal >= thr])
 
